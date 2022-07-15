@@ -50,8 +50,13 @@ export default class CarController extends Controller<Car> {
   ): Promise<typeof res> => {
     try {
       const { id } = req.params;
+      if (id.length !== 24) {
+        return res.status(400).json({ error: this.errors.badRequest });
+      }
 
       const result = await this.service.readOne(id);
+
+      if (!result) return res.status(404).json({ error: this.errors.notFound });
 
       return res.status(200).json(result);
     } catch (e) {
@@ -60,21 +65,23 @@ export default class CarController extends Controller<Car> {
   };
 
   update = async (
-    req: Request<{ id: string; }>,
+    req: RequestWithBody<Car>,
     res: Response<Car | ResError | null>,
   ): Promise<typeof res> => {
     try {
       const { id } = req.params;
 
-      if (!id) return res.status(400).json({ error: this.errors.badRequest });
-
-      const updated = await this.service.update(id, req.body);
-
-      if (!updated) {
-        return res.status(404).json({ error: this.errors.notFound });
+      if (id.length !== 24) {
+        return res.status(400).json({ error: this.errors.badRequest });
       }
 
-      return res.status(200).json(updated);
+      const rst = await this.service.update(id, req.body);
+
+      if (!rst) return res.status(404).json({ error: this.errors.notFound });
+
+      if ('error' in rst) return res.status(400).json({ error: rst.error });
+
+      return res.status(200).json(rst);
     } catch (e) {
       return res.status(500).json({ error: this.errors.internal });
     }
@@ -85,9 +92,18 @@ export default class CarController extends Controller<Car> {
     res: Response<Car | ResError | null>,
   ): Promise<typeof res> => {
     try {
-      await this.service.delete(req.params.id);
+      const { id } = req.params;
+      if (id.length !== 24) {
+        return res.status(400).json({ error: this.errors.badRequest });
+      }
 
-      return res.status(204);
+      const Deleted = await this.service.delete(id);
+
+      if (!Deleted) {
+        return res.status(404).json({ error: this.errors.notFound });
+      }
+
+      return res.status(204).json();
     } catch (e) {
       return res.status(500).json({ error: this.errors.internal });
     }
