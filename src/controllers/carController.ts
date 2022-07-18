@@ -22,11 +22,13 @@ export default class CarController extends Controller<Car> {
     res: Response<Car | ResError | null>,
   ): Promise<typeof res> => {
     try {
-      const car = await this.service.create(req.body);
+      const carCreated = await this.service.create(req.body);
 
-      if ('error' in car) return res.status(400).json({ error: car.error });
+      if ('error' in carCreated) {
+        return res.status(400).json({ error: carCreated.error });
+      }
 
-      return res.status(201).json(car);
+      return res.status(201).json(carCreated);
     } catch (e) {
       return res.status(500).json({ error: this.errors.internal });
     }
@@ -37,8 +39,8 @@ export default class CarController extends Controller<Car> {
     res: Response<Car[] | ResError | null>,
   ): Promise<typeof res> => {
     try {
-      const car = await this.service.read();
-      return res.status(200).json(car);
+      const getAllCars = await this.service.read();
+      return res.status(200).json(getAllCars);
     } catch (e) {
       return res.status(500).json({ error: this.errors.internal });
     }
@@ -54,11 +56,13 @@ export default class CarController extends Controller<Car> {
         return res.status(400).json({ error: this.errors.badRequest });
       }
 
-      const result = await this.service.readOne(id);
+      const getCarById = await this.service.readOne(id);
 
-      if (!result) return res.status(404).json({ error: this.errors.notFound });
+      if (!getCarById) {
+        return res.status(404).json({ error: this.errors.notFound });
+      }
 
-      return res.status(200).json(result);
+      return res.status(200).json(getCarById);
     } catch (e) {
       return res.status(500).json({ error: this.errors.internal });
     }
@@ -75,13 +79,15 @@ export default class CarController extends Controller<Car> {
         return res.status(400).json({ error: this.errors.badRequest });
       }
 
-      const rst = await this.service.update(id, req.body);
+      const update = await this.service.update(id, req.body);
 
-      if (!rst) return res.status(404).json({ error: this.errors.notFound });
+      if (!update) return res.status(404).json({ error: this.errors.notFound });
 
-      if ('error' in rst) return res.status(400).json({ error: rst.error });
+      if ('error' in update) {
+        return res.status(400).json({ error: update.error });
+      }
 
-      return res.status(200).json(rst);
+      return res.status(200).json(update);
     } catch (e) {
       return res.status(500).json({ error: this.errors.internal });
     }

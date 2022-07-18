@@ -4,8 +4,8 @@ import { Model } from '../interfaces/ModelInterface';
 export default abstract class MongoModel<T> implements Model<T> {
   constructor(protected model: MongooseModelInterface<T & Document>) {}
 
-  async create(obj: T): Promise<T> {
-    return this.model.create({ ...obj });
+  async create(entity: T): Promise<T> {
+    return this.model.create({ ...entity });
   }
 
   async read(): Promise<T[]> { return this.model.find(); }
@@ -14,10 +14,10 @@ export default abstract class MongoModel<T> implements Model<T> {
     return this.model.findOne({ _id: id });
   }
 
-  async update(id: string, obj: T): Promise<T | null> {
+  async update(id: string, entity: T): Promise<T | null> {
     return this.model.findOneAndUpdate(
       { _id: id },
-      { ...obj },
+      { ...entity },
     );
   }
 

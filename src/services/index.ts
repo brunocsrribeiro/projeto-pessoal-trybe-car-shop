@@ -2,10 +2,10 @@ import { ServiceError } from '../interfaces/errorInterface';
 import { Model } from '../interfaces/ModelInterface';
 
 export default abstract class Service<T> {
-  constructor(protected model: Model<T>) { }
+  constructor(public model: Model<T>) { }
 
-  public async create(obj: T): Promise<T | ServiceError> {
-    return this.model.create(obj);
+  public async create(entity: T): Promise<T | ServiceError> {
+    return this.model.create(entity);
   }
 
   public async read(): Promise<T[] | ServiceError> {
@@ -16,8 +16,8 @@ export default abstract class Service<T> {
     return this.model.readOne(id);
   }
 
-  public async update(id: string, obj: T): Promise<T | null | ServiceError> {
-    return this.model.update(id, obj);
+  public async update(id: string, entity: T): Promise<T | null | ServiceError> {
+    return this.model.update(id, entity);
   }
 
   public async delete(id: string): Promise<T | null | ServiceError> {

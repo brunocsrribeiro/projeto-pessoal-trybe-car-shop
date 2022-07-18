@@ -12,12 +12,11 @@ const motorcycleRouter = new CustomRouter<Motorcycle>();
 
 const carController = new CarController();
 const motorcycleController = new MotorcycleController();
+
 carRouter.addRouter(carController);
 motorcycleRouter.addRouter(motorcycleController);
 
 server.addRouter(carRouter.router);
 server.addRouter(motorcycleRouter.router);
-
-server.startServer();
 
 export default server;

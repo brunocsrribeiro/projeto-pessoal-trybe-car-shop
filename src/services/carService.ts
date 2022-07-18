@@ -8,31 +8,29 @@ export default class CarService extends Service<Car> {
     super(model);
   }
 
-  public create = async (obj: Car): Promise<Car | ServiceError> => {
-    const parsed = CarSchema.safeParse(obj);
+  public create = async (entity: Car): Promise<Car | ServiceError> => {
+    const parsed = CarSchema.safeParse(entity);
 
     if (!parsed.success) {
       return { error: parsed.error };
     }
     
-    return this.model.create(obj);
+    return super.create(entity);
   };
 
   public update = async (
     id: string,
-    obj: Car,
+    entity: Car,
   ): Promise<Car | ServiceError | null> => {
-    const parsed = CarSchema.safeParse(obj);
+    const parsed = CarSchema.safeParse(entity);
 
     if (!parsed.success) {
       return { error: parsed.error };
     }
 
-    return this.model.update(id, obj);
+    return super.update(id, entity);
   };
 
-  public delete = async (id: string): Promise<Car | ServiceError | null> => {
-    const Deleted = await this.model.delete(id);
-    return Deleted;
-  };
+  public delete = async (id: string): 
+  Promise<Car | ServiceError | null> => super.delete(id);
 }

@@ -1,8 +1,8 @@
 import { Response, Request } from 'express';
-import Controller from '.';
-import { RequestWithBody, ResError } from '../interfaces/errorInterface';
-import { Motorcycle } from '../interfaces/MotorcycleInterface';
 import MotorcycleService from '../services/motorcycleService';
+import Controller from '.';
+import { Motorcycle } from '../interfaces/MotorcycleInterface';
+import { RequestWithBody, ResError } from '../interfaces/errorInterface';
 
 export default class CarController extends Controller<Motorcycle> {
   $route: string;
@@ -22,13 +22,13 @@ export default class CarController extends Controller<Motorcycle> {
     res: Response<Motorcycle | ResError | null>,
   ): Promise<typeof res> => {
     try {
-      const motorcycle = await this.service.create(req.body);
+      const motorcycleCreated = await this.service.create(req.body);
 
-      if ('error' in motorcycle) {
-        return res.status(400).json({ error: motorcycle.error });
+      if ('error' in motorcycleCreated) {
+        return res.status(400).json({ error: motorcycleCreated.error });
       }
 
-      return res.status(201).json(motorcycle);
+      return res.status(201).json(motorcycleCreated);
     } catch (e) {
       return res.status(500).json({ error: this.errors.internal });
     }
@@ -39,8 +39,8 @@ export default class CarController extends Controller<Motorcycle> {
     res: Response<Motorcycle[] | ResError | null>,
   ): Promise<typeof res> => {
     try {
-      const motorcycle = await this.service.read();
-      return res.status(200).json(motorcycle);
+      const getAllMotorcycles = await this.service.read();
+      return res.status(200).json(getAllMotorcycles);
     } catch (e) {
       return res.status(500).json({ error: this.errors.internal });
     }
@@ -56,11 +56,13 @@ export default class CarController extends Controller<Motorcycle> {
         return res.status(400).json({ error: this.errors.badRequest });
       }
 
-      const result = await this.service.readOne(id);
+      const getMotorcycleById = await this.service.readOne(id);
 
-      if (!result) return res.status(404).json({ error: this.errors.notFound });
+      if (!getMotorcycleById) {
+        return res.status(404).json({ error: this.errors.notFound });
+      }
 
-      return res.status(200).json(result);
+      return res.status(200).json(getMotorcycleById);
     } catch (e) {
       return res.status(500).json({ error: this.errors.internal });
     }
@@ -77,13 +79,15 @@ export default class CarController extends Controller<Motorcycle> {
         return res.status(400).json({ error: this.errors.badRequest });
       }
 
-      const rst = await this.service.update(id, req.body);
+      const update = await this.service.update(id, req.body);
 
-      if (!rst) return res.status(404).json({ error: this.errors.notFound });
+      if (!update) return res.status(404).json({ error: this.errors.notFound });
 
-      if ('error' in rst) return res.status(400).json({ error: rst.error });
+      if ('error' in update) {
+        return res.status(400).json({ error: update.error });
+      }
 
-      return res.status(200).json(rst);
+      return res.status(200).json(update);
     } catch (e) {
       return res.status(500).json({ error: this.errors.internal });
     }
