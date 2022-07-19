@@ -10,7 +10,7 @@ export default abstract class Controler<T> {
 
   protected errors = CtrlrErrors;
   
-  constructor(protected service: Service<T>) {}
+  constructor(public service: Service<T>) {}
 
   abstract create(
     req: RequestWithBody<T>,

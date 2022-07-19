@@ -1,92 +1,199 @@
-// import { expect } from 'chai';
-// import Sinon, { SinonStub } from 'sinon';
-// import { Car } from '../../../interfaces/CarInterface';
-// import CarService from '../../../services/carService';
-// import { errorCar, validAllCars, validCar } from '../../mocks/vehiclesMocks';
+import { expect } from 'chai';
+import { Request, Response } from 'express';
+import Sinon, { SinonStub } from 'sinon';
+import CarController from '../../../controllers/carController';
+import { Car } from '../../../interfaces/CarInterface';
+import { updatedCar, validAllCars, validCar } from '../../mocks/vehiclesMocks';
 
-// describe('Car Controller', async () => {
-//   const carController = new CarService();
+describe('Car Controller', async () => {
+  const carController = new CarController();
 
-//   describe("Test of Controller", async () => {
+  const req = {} as Request;
+  let res = {} as Response;
 
-//     before(async ()=> {
-//       Sinon.stub(carController.model, 'create').resolves(validCar);
-//       Sinon.stub(carController.model, 'read').resolves(validAllCars);
-//       Sinon.stub(carController.model, 'readOne').resolves(validCar);
-//       Sinon.stub(carController.model, 'update').resolves(validCar);
-//       Sinon.stub(carController.model, 'delete').resolves({} as Car);
-//     });
+  describe('Test of Controller routes and method Create', async () => {
+    before(()=> {
+      Sinon.stub(carController.service, 'create').resolves(validCar);
+      res.json = Sinon.stub().returns(validCar);
+      res.status = Sinon.stub().returns(res);
+    });
 
-//     after(() => {
-//       (carController.model.create as SinonStub).restore();
-//     });
+    after(() => {
+      Sinon.restore();
+    });
 
-//     it('Create success', async () => {
-//       const carCreated = await carController.create(validCar);
+    it('Testing the routes', async () => {
+      const carRoutes = carController.route;
 
-//       expect(carCreated).to.be.deep.equal(validCar);
-//     });
+      expect(carRoutes).to.be.deep.equal('/cars');
+    });
 
-//     it('Read success', async () => {
-//       const carRead = await carController.read();
+    it('Create success', async () => {
+      req.body = validCar;
 
-//       expect(carRead).to.be.deep.equal(validAllCars);
-//     });
+      const carCreated = await carController.create(req, res);
 
-//     it('ReadOne success', async () => {
-//       const carReadOne =await carController.readOne(validCar._id);
+      expect(carCreated).to.be.deep.equal(validCar);
+      Sinon.assert.calledWith(res.status as SinonStub, 201);
+    });
+  });
 
-//       expect(carReadOne).to.be.deep.equal(validAllCars[0]);
-//     });
+  describe('Test of Controller method Read', async () => {
+    before(()=> {
+      Sinon.stub(carController.service, 'read').resolves(validAllCars);
+      res.json = Sinon.stub().returns(validAllCars);
+      res.status = Sinon.stub().returns(res);
+    });
 
-//     it('Update success', async () => {
-//       const carUpdate = await carController.update(validCar._id, validCar);
+    after(() => {
+      Sinon.restore();
+    });
 
-//       expect(carUpdate).to.be.deep.equal(validCar);
-//     });
+    it('Read success', async () => {
+      const carRead = await carController.read(req as any, res);
 
-//     it('Delete success', async () => {
-//       const carDelete = await carController.delete(validCar._id);
+      expect(carRead).to.be.deep.equal(validAllCars)
+      Sinon.assert.calledWith(res.status as SinonStub, 200);
+    });
+  });
 
-//       expect(carDelete).to.be.deep.equal({});
-//     });
+  describe('Test of Controller method ReadOne', async () => {
+    const req = {} as Request<{ id: string }>;
 
-//     it('Create test error', async () => {
-//       const carCreated = await carController.create(errorCar as unknown as Car);
+    before(()=> {
+      Sinon.stub(carController.service, 'readOne').resolves(validCar);
+      res.json = Sinon.stub().returns(validCar);
+      res.status = Sinon.stub().returns(res);
+    });
 
-//       expect(carCreated).to.haveOwnProperty('error');
-//     });
+    after(() => {
+      Sinon.restore();
+    });
 
-//     it('Create test error', async () => {
-//       const carCreated = await carController.update(errorCar._id, errorCar as unknown as Car);
+    it('ReadOne success', async () => {
+      req.params = { id: "4edd40c86762e0fb12000003" };
 
-//       expect(carCreated).to.haveOwnProperty('error');
-//     })
-//   });
-// });
+      const carReadOne = await carController.readOne(req, res);
 
+      expect(carReadOne).to.be.deep.equal(validCar);
+      Sinon.assert.calledWith(res.status as SinonStub, 200);
+    });
+  });
 
-// import * as sinon from 'sinon';
-// import chai from 'chai';
-// import chaiHttp = require('chai-http');
+  describe('Test of Controller method Update', async () => {
+    const req = {} as Request<{ id: string }>;
 
+    before(()=> {
+      Sinon.stub(carController.service, 'update').resolves(updatedCar);
+      res.json = Sinon.stub().returns(updatedCar);
+      res.status = Sinon.stub().returns(res);
+    });
 
-// chai.use(chaiHttp);
+    after(() => {
+      Sinon.restore();
+    });
 
-// const { expect } = chai;
+    it('Update success', async () => {
+      req.params = { id: "4edd40c86762e0fb12000003" };
+      req.body = updatedCar;
 
-// describe('Sua descrição', () => {
+      const carReadOne = await carController.update(req, res);
 
-//   before(async () => {
-//     sinon
-//       .stub()
-//       .resolves();
-//   });
+      expect(carReadOne).to.be.deep.equal(updatedCar);
+      Sinon.assert.calledWith(res.status as SinonStub, 200);
+    });
+  });
 
-//   after(()=>{
-//     ().restore();
-//   })
+  describe('Test of controller Delete', async () => {
+    const req = {} as Request<{ id: string }>;
 
-//   it('', async () => {});
+    before(async () => {
+      Sinon.stub(carController.service, 'delete').resolves({} as Car);
+      res.json = Sinon.stub().returns({});
+      res.status = Sinon.stub().returns(res);
+    });
 
-// });
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('Delete', async () => {
+      req.params = { id: "4edd40c86762e0fb12000003" };
+  
+      const carDelete = await carController.delete(req, res);
+  
+      expect(carDelete).to.be.deep.equal({});
+      Sinon.assert.calledWith(res.status as SinonStub, 204);
+    });
+  });
+
+  describe('Test of Controller method ReadOne errors', async () => {
+    const req = {} as Request<{ id: string }>;
+
+    before(()=> {
+      Sinon.stub(carController.service, 'readOne').resolves(validCar);
+      res.json = Sinon.stub().returns({ error: 'Id must have 24 hexadecimal characters' });
+      res.status = Sinon.stub().returns(res);
+    });
+
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('ReadOne error', async () => {
+      req.params = { id: "4edd40c86762e0fb" };
+
+      const carReadOne = await carController.update(req, res);
+
+      expect(carReadOne).to.haveOwnProperty('error', 'Id must have 24 hexadecimal characters');
+      Sinon.assert.calledWith(res.status as SinonStub, 400);
+    });
+  });
+
+  describe('Test of Controller method Update errors', async () => {
+    const req = {} as Request<{ id: string }>;
+
+    before(()=> {
+      Sinon.stub(carController.service, 'update').resolves(updatedCar);
+      res.json = Sinon.stub().returns({ error: 'Id must have 24 hexadecimal characters' });
+      res.status = Sinon.stub().returns(res);
+    });
+
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('Update error', async () => {
+      req.params = { id: "4edd40c86762e0fb" };
+      req.body = updatedCar;
+
+      const carUpdate = await carController.update(req, res);
+
+      expect(carUpdate).to.haveOwnProperty('error', 'Id must have 24 hexadecimal characters');
+      Sinon.assert.calledWith(res.status as SinonStub, 400);
+    });
+  });
+
+  describe('Test of controller Delete errors', async () => {
+    const req = {} as Request<{ id: string }>;
+
+    before(async () => {
+      Sinon.stub(carController.service, 'delete').resolves();
+      res.json = Sinon.stub().returns({ error: 'Id must have 24 hexadecimal characters' });
+      res.status = Sinon.stub().returns(res);
+    });
+
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('Delete error, Id must have 24 hexadecimal characters', async () => {
+      req.params = { id: "4edd40c86762e0fb12" };
+  
+      const carDelete = await carController.delete(req, res);
+  
+      expect(carDelete).to.haveOwnProperty('error', 'Id must have 24 hexadecimal characters');
+      Sinon.assert.calledWith(res.status as SinonStub, 400);
+    });
+  });
+});

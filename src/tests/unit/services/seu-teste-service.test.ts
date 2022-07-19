@@ -54,13 +54,13 @@ describe('Car service', async () => {
     it('Create test error', async () => {
       const carCreated = await carService.create(errorCar as unknown as Car);
 
-      expect(carCreated).to.haveOwnProperty('error');
+      expect(carCreated).to.be.haveOwnProperty('error');
     });
 
     it('Create test error', async () => {
       const carCreated = await carService.update(errorCar._id, errorCar as unknown as Car);
 
-      expect(carCreated).to.haveOwnProperty('error');
+      expect(carCreated).to.be.haveOwnProperty('error');
     })
   });
 });
