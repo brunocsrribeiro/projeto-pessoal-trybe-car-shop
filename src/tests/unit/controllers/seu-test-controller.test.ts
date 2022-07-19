@@ -127,7 +127,49 @@ describe('Car Controller', async () => {
     });
   });
 
-  describe('Test of Controller method ReadOne errors', async () => {
+  describe('Test of Controller Create error Internal server error', async () => {
+    before(()=> {
+      Sinon.stub(carController.service, 'create')
+        .throws(new Error('Internal server error'));
+      res.json = Sinon.stub().returns(validCar);
+      res.status = Sinon.stub().returns(res);
+    });
+
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('Create error Internal server error', async () => {
+      req.body = validCar;
+
+      await carController.create(req, res);
+
+      Sinon.assert.calledWith(res.status as SinonStub, 500);
+    });
+  });
+
+  describe('Test of Controller Read error Internal server error', async () => {
+    before(()=> {
+      Sinon.stub(carController.service, 'read')
+        .throws(new Error('Internal server error'));
+      res.json = Sinon.stub().returns(validAllCars);
+      res.status = Sinon.stub().returns(res);
+    });
+
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('Read error Internal server error', async () => {
+      req.body = validCar;
+
+      await carController.read(req as any, res);
+
+      Sinon.assert.calledWith(res.status as SinonStub, 500);
+    });
+  });
+
+  describe('Test of Controller ReadOne error Bad Request', async () => {
     const req = {} as Request<{ id: string }>;
 
     before(()=> {
@@ -143,14 +185,60 @@ describe('Car Controller', async () => {
     it('ReadOne error', async () => {
       req.params = { id: "4edd40c86762e0fb" };
 
-      const carReadOne = await carController.update(req, res);
+      const carReadOne = await carController.readOne(req, res);
 
       expect(carReadOne).to.haveOwnProperty('error', 'Id must have 24 hexadecimal characters');
       Sinon.assert.calledWith(res.status as SinonStub, 400);
     });
   });
 
-  describe('Test of Controller method Update errors', async () => {
+  describe('Test of controller ReadOne error Not Found', async () => {
+    const req = {} as Request<{ id: string }>;
+
+    before(async () => {
+      Sinon.stub(carController.service, 'readOne').resolves();
+      res.json = Sinon.stub().returns({ error: 'Object not found' });
+      res.status = Sinon.stub().returns(res);
+    });
+
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('ReadOne error, Object not found', async () => {
+      req.params = { id: "4edd40c86762e0fb12000000" };
+  
+      const carReadOne = await carController.readOne(req, res);
+  
+      expect(carReadOne).to.haveOwnProperty('error', 'Object not found');
+      Sinon.assert.calledWith(res.status as SinonStub, 404);
+    });
+  });
+
+  describe('Test of Controller ReadOne error Internal server error', async () => {
+    const req = {} as Request<{ id: string }>;
+
+    before(()=> {
+      Sinon.stub(carController.service, 'readOne')
+        .throws(new Error('Internal server error'));
+      res.json = Sinon.stub().returns(validCar);
+      res.status = Sinon.stub().returns(res);
+    });
+
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('ReadOne error Internal server error', async () => {
+      req.params = { id: "4edd40c86762e0fb12000003" };
+
+      await carController.readOne(req , res);
+
+      Sinon.assert.calledWith(res.status as SinonStub, 500);
+    });
+  });
+
+  describe('Test of Controller Update error Bad Request', async () => {
     const req = {} as Request<{ id: string }>;
 
     before(()=> {
@@ -174,7 +262,31 @@ describe('Car Controller', async () => {
     });
   });
 
-  describe('Test of controller Delete errors', async () => {
+  describe('Test of Controller Update error Internal server error', async () => {
+    const req = {} as Request<{ id: string }>;
+
+    before(()=> {
+      Sinon.stub(carController.service, 'update')
+        .throws(new Error('Internal server error'));
+      res.json = Sinon.stub().returns(updatedCar);
+      res.status = Sinon.stub().returns(res);
+    });
+
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('ReadOne error Internal server error', async () => {
+      req.params = { id: "4edd40c86762e0fb12000003" };
+      req.body = updatedCar;
+
+      await carController.update(req , res);
+
+      Sinon.assert.calledWith(res.status as SinonStub, 500);
+    });
+  });
+
+  describe('Test of controller Delete error Bad Request', async () => {
     const req = {} as Request<{ id: string }>;
 
     before(async () => {
@@ -194,6 +306,52 @@ describe('Car Controller', async () => {
   
       expect(carDelete).to.haveOwnProperty('error', 'Id must have 24 hexadecimal characters');
       Sinon.assert.calledWith(res.status as SinonStub, 400);
+    });
+  });
+
+  describe('Test of controller Delete error Not Found', async () => {
+    const req = {} as Request<{ id: string }>;
+
+    before(async () => {
+      Sinon.stub(carController.service, 'delete').resolves();
+      res.json = Sinon.stub().returns({ error: 'Object not found' });
+      res.status = Sinon.stub().returns(res);
+    });
+
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('Delete error, Object not found', async () => {
+      req.params = { id: "4edd40c86762e0fb12000000" };
+  
+      const carDelete = await carController.delete(req, res);
+  
+      expect(carDelete).to.haveOwnProperty('error', 'Object not found');
+      Sinon.assert.calledWith(res.status as SinonStub, 404);
+    });
+  });
+
+  describe('Test of Controller Delete error Internal server error', async () => {
+    const req = {} as Request<{ id: string }>;
+
+    before(()=> {
+      Sinon.stub(carController.service, 'delete')
+        .throws(new Error('Internal server error'));
+      res.json = Sinon.stub().returns(updatedCar);
+      res.status = Sinon.stub().returns(res);
+    });
+
+    after(() => {
+      Sinon.restore();
+    });
+
+    it('Delete error Internal server error', async () => {
+      req.params = { id: "4edd40c86762e0fb12000003" };
+
+      await carController.delete(req , res);
+
+      Sinon.assert.calledWith(res.status as SinonStub, 500);
     });
   });
 });

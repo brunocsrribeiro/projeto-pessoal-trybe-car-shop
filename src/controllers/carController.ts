@@ -29,9 +29,7 @@ export default class CarController extends Controller<Car> {
       }
 
       return res.status(201).json(carCreated);
-    } catch (e) {
-      console.log(e);
-      
+    } catch (e) {      
       return res.status(500).json({ error: this.errors.internal });
     }
   };
